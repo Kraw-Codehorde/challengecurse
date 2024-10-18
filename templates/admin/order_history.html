@@ -1,0 +1,106 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+<style>
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .order-table th, .order-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+    .order-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    .order-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .order-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    .sort-link {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .sort-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Order History</h1>
+
+{% if user_orders %}
+    <table class="order-table" id="orderTable">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Total</th>
+                <th>
+                    <span class="sort-link" data-sort="date">
+                        Date <span class="sort-indicator">▼</span>
+                    </span>
+                </th>
+                <th>Products</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in user_orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>${{ order.total|floatformat:2 }}</td>
+                <td data-date="{{ order.date|date:'Y-m-d H:i:s' }}">{{ order.date|date:"F d, Y H:i" }}</td>
+                <td>
+                    <ul>
+                    {% for product in order.products.all %}
+                        <li>{{ product.name }}</li>
+                    {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No orders found.</p>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('orderTable');
+    const dateHeader = table.querySelector('th:nth-child(3) .sort-link');
+    let isAscending = false;  // Start with descending order (newest to oldest)
+
+    function sortTable() {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+            const dateA = new Date(a.querySelector('td:nth-child(3)').dataset.date);
+            const dateB = new Date(b.querySelector('td:nth-child(3)').dataset.date);
+            return isAscending ? dateA - dateB : dateB - dateA;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+
+        dateHeader.querySelector('.sort-indicator').textContent = isAscending ? '▲' : '▼';
+    }
+
+    // Initial sort
+    sortTable();
+
+    // Add click event for toggling sort order
+    dateHeader.addEventListener('click', function() {
+        isAscending = !isAscending;
+        sortTable();
+    });
+});
+</script>
+{% endblock %}

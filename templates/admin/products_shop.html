@@ -1,0 +1,214 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    #product-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    #product-table th, #product-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    #product-table th {
+        background-color: #f2f2f2;
+    }
+    #cart {
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+    .cart-item {
+        margin-bottom: 5px;
+    }
+    #cart-total {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Products</h1>
+<table id="product-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="product-list">
+        <!-- Products will be dynamically added here -->
+    </tbody>
+</table>
+
+<div id="cart">
+    <h2>Shopping Cart</h2>
+    <div id="cart-items">
+        <!-- Cart items will be dynamically added here -->
+    </div>
+    <div id="cart-total">
+        Total Items: <span id="total-items">0</span><br>
+        Total Amount: $<span id="total-amount">0.00</span>
+    </div>
+    <button id="checkout-btn" onclick="checkout()">Checkout</button>
+</div>
+
+<script>
+    let cart = [];
+    let productStock = {}; // New object to store product stock
+
+    function fetchProducts() {
+        fetch('/api/products/')
+            .then(response => response.json())
+            .then(data => {
+                const productList = document.getElementById('product-list');
+                productList.innerHTML = '';
+                data.forEach(product => {
+                    productStock[product.id] = product.stock; // Store stock information
+                    const row = `
+                        <tr>
+                            <td>${product.name}</td>
+                            <td>${product.description}</td>
+                            <td>$${product.price}</td>
+                            <td id="stock-${product.id}">${product.stock}</td>
+                            <td><button onclick="addToCart(${product.id}, '${product.name}', ${product.price})">Add to Cart</button></td>
+                        </tr>
+                    `;
+                    productList.innerHTML += row;
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function addToCart(id, name, price) {
+        if (productStock[id] > 0) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            productStock[id] -= 1;
+            updateCartDisplay();
+            updateStockDisplay(id);
+        } else {
+            alert('This item is out of stock.');
+        }
+    }
+
+    function removeFromCart(id) {
+        const itemIndex = cart.findIndex(item => item.id === id);
+        if (itemIndex !== -1) {
+            const item = cart[itemIndex];
+            if (item.quantity > 1) {
+                item.quantity -= 1;
+            } else {
+                cart.splice(itemIndex, 1);
+            }
+            productStock[id] += 1;
+            updateCartDisplay();
+            updateStockDisplay(id);
+        }
+    }
+
+    function updateStockDisplay(id) {
+        const stockElement = document.getElementById(`stock-${id}`);
+        if (stockElement) {
+            stockElement.textContent = productStock[id];
+        }
+    }
+
+    function updateCartDisplay() {
+        const cartItems = document.getElementById('cart-items');
+        const totalItems = document.getElementById('total-items');
+        const totalAmount = document.getElementById('total-amount');
+        
+        cartItems.innerHTML = '';
+        let items = 0;
+        let total = 0;
+
+        cart.forEach(item => {
+            cartItems.innerHTML += `
+                <div class="cart-item">
+                    ${item.name} - Quantity: ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}
+                    <button onclick="removeFromCart(${item.id})">Remove</button>
+                </div>
+            `;
+            items += item.quantity;
+            total += item.price * item.quantity;
+        });
+
+        totalItems.textContent = items;
+        totalAmount.textContent = total.toFixed(2);
+    }
+
+    function checkout() {
+        if (cart.length === 0) {
+            alert('Your cart is empty!');
+            return;
+        }
+
+        const order = {
+            products: cart.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity
+            })),
+        };
+
+        console.log('Order data being sent to server:', order);
+
+        fetch('/api/orders/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(order)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'An error occurred while placing the order.');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('Order placed successfully!');
+            cart = [];
+            updateCartDisplay();
+            // Redirect to order history page
+            window.location.href = '/admin/history/';  // Adjust this URL as needed
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message);
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Fetch products when the page loads
+    fetchProducts();
+</script>
+{% endblock %}
