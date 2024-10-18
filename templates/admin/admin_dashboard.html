@@ -1,11 +1,7 @@
-{# admin/admin_dashboard.html #}
 {% extends "admin/base_site.html" %}
 
 {% block content %}
-    <h1>Welcome user, {{ request.user.username }}</h1>
-    <p>This is the user dashboard.</p>
-
-    {# Include a link to the Product admin #}
+    
     <h2>Products</h2>
     <ul>
         <li><a href="{% url 'admin:products_product_changelist' %}">Manage Products</a></li>

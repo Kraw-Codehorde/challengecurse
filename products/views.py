@@ -6,6 +6,10 @@ from .permissions import AdminOrSuperuserPermission
 from accounts.models import CustomUser
 
 class ProductViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows products to be viewed by regular users/clients, 
+    or edited by admins/superusers.
+    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated]

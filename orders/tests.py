@@ -8,7 +8,7 @@ from products.models import Product
 @pytest.mark.django_db
 class TestOrderModel:
     @pytest.fixture
-    def user(self, create_groups):
+    def user(self):
         User = get_user_model()
         return User.objects.create_user('testuser', 'test@example.com', 'testpass123')
 
@@ -32,7 +32,7 @@ class TestOrderViewSet:
         return APIClient()
 
     @pytest.fixture
-    def user(self, create_groups):
+    def user(self):
         User = get_user_model()
         return User.objects.create_user('testuser', 'test@example.com', 'testpass123')
 

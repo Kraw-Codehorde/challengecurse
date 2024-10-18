@@ -5,6 +5,10 @@ from .models import CustomUser
 
 @receiver(post_save, sender=CustomUser)
 def assign_user_to_group(sender, instance, created, **kwargs):
+    """
+    Assigns a user to a group based on their user type.
+    TODO: change naming convention of 'Regular User' to 'Client'
+    """
     if created:
         if instance.user_type == 2:  # Admin
             group = Group.objects.get(name='Admin')

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from products.models import Product  # Adjust import based on your app structure
+from products.models import Product 
 
 class Command(BaseCommand):
     help = 'Creates default groups and permissions'
@@ -36,9 +36,6 @@ class Command(BaseCommand):
             change_product_permission,
             delete_product_permission
         )
-
-        # Assign permissions to regular user group if any (optional)
-        # regular_group.permissions.add(<permissions-for-regular-users>)
 
         self.stdout.write(self.style.SUCCESS('Successfully created groups and assigned permissions'))
 

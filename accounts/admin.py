@@ -12,6 +12,10 @@ from orders.models import Order
 from orders.admin import OrderAdmin
 
 class CustomAdminSite(admin.AdminSite):
+    """
+    ALL the logic for the custom admin site views is here. 
+    TODO: probably move it to separate files, so it doesn't get so messy.
+    """
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -25,46 +29,47 @@ class CustomAdminSite(admin.AdminSite):
         return request.user.is_authenticated
 
     def index(self, request, extra_context=None):
-        # Default context variables
-        log_entries = LogEntry.objects.all()  # Get log entries if needed
-        has_permission = self.has_permission(request)
-
+        log_entries = LogEntry.objects.all()  # log entries are needed!!!
+        
+        # Load the standard Django admin index for superusers, with all powers
         if request.user.is_superuser:
-            # Load the standard Django admin index for superusers
             return super().index(request, extra_context=extra_context)
 
         # For admin and regular users, provide custom context
         if request.user.is_admin_user():  
             extra_context = {
                 'title': 'Admin User Dashboard',
-                'message': 'Welcome, Admin User! You have limited access.',
-                'is_admin': True,
-                'log_entries': log_entries,
-                'has_permission': has_permission,
+                'log_entries': log_entries, # log entries are needed, if not error.
+                # has_permission is needed to display correct Header in the template.
+                'has_permission': self.has_permission(request), 
             }
             return TemplateResponse(request, 'admin/admin_dashboard.html', extra_context)
+        # For regular users
         else:
             extra_context = {
                 'title': 'User Dashboard',
-                'is_admin': False,
-                'log_entries': log_entries,
-                'has_permission': has_permission,
+                'log_entries': log_entries, # log entries are needed, if not error.
+                'has_permission': self.has_permission(request), #IMPORTANT!
             }
 
         # Render the default admin index but with custom context
         return TemplateResponse(request, 'admin/regular_dashboard.html', extra_context)
     
     def order_history_view(self, request):
+        # TODO: fix breadcrumbs navigation!
         user_orders = Order.objects.filter(client=request.user)
         context = {
             'user_orders': user_orders,
+            'has_permission': self.has_permission(request), #IMPORTANT!
         }
         return TemplateResponse(request, 'admin/order_history.html', context)
     
     def shop_view(self, request):
+        # TODO: fix breadcrumbs navigation!
         products = Product.objects.all()
         context = {
-            'products': products,
+            # 'products': products,   # fetching is done through api atm.
+            'has_permission': self.has_permission(request),
         }
         return TemplateResponse(request, 'admin/products_shop.html', context)
 
@@ -82,9 +87,5 @@ class CustomUserAdmin(UserAdmin):
     )
 
 custom_admin_site.register(CustomUser, CustomUserAdmin)
-
-
 custom_admin_site.register(Product, ProductAdmin)
-
-
 custom_admin_site.register(Order, OrderAdmin)
