@@ -6,3 +6,4 @@ requirements.in
 __pycache__/
 .pytest_cache/
 .flake8
+.bandit.yml
