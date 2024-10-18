@@ -1,0 +1,43 @@
+# Ignore version control directories
+.git
+.gitignore
+
+# Ignore Docker-related files
+.dockerignore
+Dockerfile
+
+# Ignore local databases
+db.sqlite3
+
+# Ignore Python cache files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv
+.venv/
+.tox
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Ignore test and coverage artifacts
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Ignore Django migrations
+migrations
+
+# Ignore configuration files for tools
+.bandit.yml
+.flake8
+
+# Note: The following entries are redundant and can be removed
+# - .venv (already listed above)
+# - .pytest_cache (already listed above)
