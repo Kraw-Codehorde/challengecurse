@@ -6,8 +6,14 @@
 #
 asgiref==3.8.1
     # via django
+black==24.10.0
+    # via -r .\requirements.in
+click==8.1.7
+    # via black
 colorama==0.4.6
-    # via pytest
+    # via
+    #   click
+    #   pytest
 coverage[toml]==7.6.3
     # via pytest-cov
 django==5.1.2
@@ -16,12 +22,28 @@ django==5.1.2
     #   djangorestframework
 djangorestframework==3.15.2
     # via -r .\requirements.in
+flake8==7.1.1
+    # via -r .\requirements.in
 iniconfig==2.0.0
     # via pytest
+mccabe==0.7.0
+    # via flake8
+mypy-extensions==1.0.0
+    # via black
 packaging==24.1
-    # via pytest
+    # via
+    #   black
+    #   pytest
+pathspec==0.12.1
+    # via black
+platformdirs==4.3.6
+    # via black
 pluggy==1.5.0
     # via pytest
+pycodestyle==2.12.1
+    # via flake8
+pyflakes==3.2.0
+    # via flake8
 pytest==8.3.3
     # via
     #   -r .\requirements.in

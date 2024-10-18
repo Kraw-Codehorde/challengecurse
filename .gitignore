@@ -5,3 +5,4 @@ requirements.in
 .coverage
 __pycache__/
 .pytest_cache/
+.flake8
