@@ -31,7 +31,11 @@ La version final y completa de este desafio necesita de Docker para funcionar co
    ```
    git clone https://github.com/Kraw-Codehorde/challengecurse.git
    ```
-2. Crear las imagenes y levantar:
+2. Acceder al directorio del proyecto:
+   ```   
+   cd challengecurse
+   ```
+3. Crear las imagenes y levantar:
    ```
    docker compose up -d --build
    ```

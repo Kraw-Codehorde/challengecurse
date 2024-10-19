@@ -51,7 +51,7 @@ RUN chown -R app:app /app
 USER app
 
 # Remove the ENTRYPOINT line to skip using entrypoint.sh
-# ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Run the application (use CMD as the default command)
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
