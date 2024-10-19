@@ -1,0 +1,111 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:history' %}">{% trans 'Order History' %}</a>
+    &rsaquo; {% trans 'Order Details' %}
+</div>
+{% endblock %}
+
+{% block extrahead %}
+<style>
+    .order-details {
+        margin-top: 20px;
+    }
+    .order-details h2 {
+        margin-bottom: 10px;
+    }
+    .order-info, .product-list {
+        margin-bottom: 20px;
+    }
+    .order-info p {
+        margin: 5px 0;
+    }
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .product-table th, .product-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .product-table th {
+        background-color: #f2f2f2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-details">
+    <h2>Order Details</h2>
+    
+    <div class="order-info">
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>Date:</strong> {{ order.date|date:"F d, Y H:i" }}</p>
+        <p><strong>Total:</strong> ${{ order.total|floatformat:2 }}</p>
+        <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+    </div>
+    
+    <div class="product-list">
+        <h3>Products</h3>
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody id="product-list-body">
+                <!-- Product rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const orderProducts = {{ order.products|safe }};
+        const productListBody = document.getElementById('product-list-body');
+
+        function fetchProductDetails(productId, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/api/products/${productId}`, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    callback(JSON.parse(xhr.responseText));
+                } else {
+                    console.error('Error fetching product details:', xhr.status);
+                }
+            };
+            xhr.onerror = function() {
+                console.error('Network error while fetching product details');
+            };
+            xhr.send();
+        }
+
+        orderProducts.forEach(item => {
+            fetchProductDetails(item.product_id, function(product) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.description}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${parseFloat(product.price).toFixed(2)}</td>
+                    <td>$${(item.quantity * parseFloat(product.price)).toFixed(2)}</td>
+                `;
+                productListBody.appendChild(row);
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+
+
+

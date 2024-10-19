@@ -23,6 +23,7 @@ class CustomAdminSite(admin.AdminSite):
             path('', self.admin_view(self.index), name='index'),
             path('history/', self.admin_view(self.order_history_view), name='history'),
             path('shop/', self.admin_view(self.shop_view), name='shop'),
+            path('history/<int:pk>/', self.admin_view(self.order_details_view), name='order_details'),
         ]
         return custom_urls + urls
 
@@ -68,6 +69,14 @@ class CustomAdminSite(admin.AdminSite):
         }
         context.update(extra_context or {})
         return TemplateResponse(request, 'admin/order_history.html', context)
+    
+    def order_details_view(self, request, pk, extra_context=None):
+        order = Order.objects.get(pk=pk, client=request.user)
+        context = {
+            **self.each_context(request),
+            'order': order, #TODO: handle case when order is not found.
+        }
+        return TemplateResponse(request, 'admin/order_details.html', context)
     
     def shop_view(self, request, extra_context=None):
         # products = Product.objects.all()

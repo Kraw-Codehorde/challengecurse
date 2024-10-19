@@ -60,7 +60,7 @@
         <tbody>
             {% for order in user_orders %}
             <tr>
-                <td>{{ order.id }}</td>
+                <td><a href="{% url 'admin:order_details' order.id %}">{{ order.id }}</a></td>
                 <td>${{ order.total|floatformat:2 }}</td>
                 <td data-date="{{ order.date|date:'Y-m-d H:i:s' }}">{{ order.date|date:"F d, Y H:i" }}</td>
                 <td>
