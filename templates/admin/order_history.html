@@ -1,5 +1,12 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load static i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {% trans 'Order History' %}
+</div>
+{% endblock %}
 
 {% block extrahead %}
 <style>
@@ -35,7 +42,6 @@
 {% endblock %}
 
 {% block content %}
-<h1>Order History</h1>
 
 {% if user_orders %}
     <table class="order-table" id="orderTable">

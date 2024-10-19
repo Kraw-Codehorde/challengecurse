@@ -5,6 +5,7 @@ from django.urls import path
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.contrib.admin.models import LogEntry
+from django.utils.translation import gettext as _
 
 from products.models import Product
 from products.admin import ProductAdmin
@@ -55,22 +56,30 @@ class CustomAdminSite(admin.AdminSite):
         # Render the default admin index but with custom context
         return TemplateResponse(request, 'admin/regular_dashboard.html', extra_context)
     
-    def order_history_view(self, request):
-        # TODO: fix breadcrumbs navigation!
+    def order_history_view(self, request, extra_context=None):
         user_orders = Order.objects.filter(client=request.user)
         context = {
+            **self.each_context(request),
+            'title': _('Order History'),
+            'subtitle': None,
+            'app_label': 'orders',  
             'user_orders': user_orders,
             'has_permission': self.has_permission(request), #IMPORTANT!
         }
+        context.update(extra_context or {})
         return TemplateResponse(request, 'admin/order_history.html', context)
     
-    def shop_view(self, request):
-        # TODO: fix breadcrumbs navigation!
-        products = Product.objects.all()
+    def shop_view(self, request, extra_context=None):
+        # products = Product.objects.all()
         context = {
+            **self.each_context(request),
+            'title': _('Shop'),
+            'subtitle': None,
+            'app_label': 'products',  
             # 'products': products,   # fetching is done through api atm.
             'has_permission': self.has_permission(request),
         }
+        context.update(extra_context or {})
         return TemplateResponse(request, 'admin/products_shop.html', context)
 
 
