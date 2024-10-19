@@ -28,6 +28,42 @@
         font-weight: bold;
         margin-top: 10px;
     }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 300px;
+        text-align: center;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
@@ -58,6 +94,15 @@
         Total Amount: $<span id="total-amount">0.00</span>
     </div>
     <button id="checkout-btn" onclick="checkout()">Checkout</button>
+</div>
+
+<!-- Add this modal div at the end of the content block -->
+<div id="checkoutModal" class="modal">
+    <div class="modal-content">
+        <h2>Processing Order</h2>
+        <div class="spinner"></div>
+        <p>Please wait while we process your order...</p>
+    </div>
 </div>
 
 <script>
@@ -164,6 +209,9 @@
 
         console.log('Order data being sent to server:', order);
 
+        // Show the modal
+        document.getElementById('checkoutModal').style.display = 'block';
+
         fetch('/api/orders/', {
             method: 'POST',
             headers: {
@@ -181,15 +229,17 @@
             return response.json();
         })
         .then(data => {
-            alert('Order placed successfully!');
+            // Hide the modal
+            document.getElementById('checkoutModal').style.display = 'none';
+            alert('Order placed successfully! Order ID: ' + data.id);
             cart = [];
-            updateCartDisplay();
             // Redirect to order history page
-            window.location.href = '/admin/history/';  
+            window.location.href = "{% url 'admin:history' %}";
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert(error.message);
+            // Hide the modal
+            document.getElementById('checkoutModal').style.display = 'none';
+            alert('Error: ' + error.message);
         });
     }
 

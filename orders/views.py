@@ -15,6 +15,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order_data = {
             'client': client.id,
             'products': products_data,
+            'status': 'pending',  # Set initial status
         }
         
         serializer = self.get_serializer(data=order_data)
@@ -24,4 +25,4 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Asynchronously process the order
         process_order.delay(order.id)
         
-        return Response(serializer.data, status=201)
+        return Response({'id': order.id, 'status': 'pending'}, status=201)
