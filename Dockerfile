@@ -50,10 +50,8 @@ RUN chown -R app:app /app
 # Switch to non-root user
 USER app
 
-# Use shell as entrypoint
-ENTRYPOINT ["/bin/sh"]
+# Remove the ENTRYPOINT line to skip using entrypoint.sh
+# ENTRYPOINT ["/entrypoint.sh"]
 
-# Change CMD to keep the container running
-CMD ["tail", "-f", "/dev/null"]
-
-# changed line ending to LF
+# Run the application (use CMD as the default command)
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
