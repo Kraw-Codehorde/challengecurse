@@ -13,6 +13,7 @@ services:
       - DJANGO_SETTINGS_MODULE=admin_shop.settings
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:13
@@ -22,6 +23,18 @@ services:
       - POSTGRES_DB=admin_shop
       - POSTGRES_USER=admin_shop_user
       - POSTGRES_PASSWORD=admin_shop_password
+
+  redis:
+    image: redis:alpine
+
+  celery:
+    build: .
+    command: celery -A admin_shop worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres_data:
