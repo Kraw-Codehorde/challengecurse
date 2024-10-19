@@ -20,6 +20,8 @@ python manage.py create_groups
 echo "Setting up test data..."
 python manage.py setup_test_data
 
+python manage.py create_groups
+
 # Start the main process
 echo "Starting main process..."
 exec "$@"
