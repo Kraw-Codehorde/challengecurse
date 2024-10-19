@@ -27,7 +27,7 @@ ENV DB_TYPE=postgres
 WORKDIR /app
 
 # Install runtime dependencies
-RUN apk add --no-cache libpq
+RUN apk add --no-cache libpq netcat-openbsd
 
 # Copy wheels from builder and install
 COPY --from=builder /usr/src/app/wheels /wheels
@@ -37,11 +37,21 @@ RUN pip install --no-cache /wheels/*
 # Copy project files
 COPY . .
 
+# Copy the entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Ensure management commands are copied
+COPY accounts/management/commands/*.py /app/accounts/management/commands/
+
 # Change ownership of the app directory
 RUN chown -R app:app /app
 
 # Switch to non-root user
 USER app
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Run the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
