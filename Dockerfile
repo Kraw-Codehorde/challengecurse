@@ -35,7 +35,7 @@ COPY --from=builder /usr/src/app/requirements_docker.txt .
 RUN pip install --no-cache /wheels/*
 
 # Copy project files
-COPY . .
+COPY . /app
 
 # Copy the entrypoint script
 COPY entrypoint.sh /entrypoint.sh
