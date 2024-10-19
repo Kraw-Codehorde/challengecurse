@@ -36,5 +36,16 @@ services:
       - db
       - redis
 
+  tests:
+    build: .
+    command: pytest
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=admin_shop.settings
+      - DATABASE_URL=postgres://admin_shop_user:admin_shop_password@db:5432/admin_shop
+    depends_on:
+      - db
+
 volumes:
   postgres_data:
