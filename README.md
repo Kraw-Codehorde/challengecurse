@@ -60,7 +60,7 @@ Una vez que docker esta corriendo, acceder al admin:
 ```
 http://localhost:8000/admin
 ```
-Distintos usuarios con distintos permisos:
+Distintos usuarios con distintos permisos (usuario / password):
 - Superuser: super / super (full Django Admin powers)
 - Admin: admin / admin (puede crear nuevos productos)
 - Client: client / client (puede ver el historial de compras y los detalles de una orden. Y tambien puede crear nuevas ordenes)
